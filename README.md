@@ -8,21 +8,20 @@ To add your own programs, just put their `.conf` files in `/etc/supervisor.d/`.
 
 ## remote shell
 
-`EXPOSE`s a shell via port 14000 that you can connect to with `[socat]`.  For
-example:
-
-    socat -,raw,echo=0 TCP4:localhost:$PORT_14000
-
-Bada bing, bada boom, you're running a `bash` shell as root in the container.
-Yes, `openssh-server` would be more secure, but this should only be opened to
-the host, which presumably you already trust pretty thoroughly.  This should
-also be lighter-weight than sshd.
-
-Some might call this a massive back door, others call it damn useful.
+`sshd` is listening on port 22.  The password's in `src/setup.sh` and is quite
+obvious.
 
 I'd initially intended to use [wsh], but I ran into [#3385].
 
-[socat]: http://www.dest-unreach.org/socat/
+## other bloat
+
+`crond` and `rsyslog` are both provided in this image.  I'd not intended to run
+these, but I've decided to let each container manage its own backups and other
+automated tasks.  As a result, `/var/log` needs to be minded.  It's not flagged
+as a volume in Dockerfile, which leaves it up to the user to map a volume with
+`-v` if the contents are meaningful; otherwise they'll be removed when the
+container is culled.
+
 [Supervisor]: http://supervisord.org/
 [wsh]: https://github.com/chenyf/wsh
 [#3385]: https://github.com/dotcloud/docker/issues/3385
